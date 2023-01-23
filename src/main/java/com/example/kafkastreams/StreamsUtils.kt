@@ -1,25 +1,27 @@
-package com.example.kafkastreams;
+package com.example.kafkastreams
 
-import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.NewTopic
+import java.io.FileInputStream
+import java.io.IOException
+import java.util.*
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+object StreamsUtils {
+    private const val PROPERTIES_FILE_PATH = "src/main/resources/streams.properties"
+    private const val REPLICATION_FACTOR: Short = 3
+    private const val PARTITIONS = 6
 
-public class StreamsUtils {
-
-    public static final String PROPERTIES_FILE_PATH = "src/main/resources/streams.properties";
-    public static final short REPLICATION_FACTOR = 3;
-    public static final int PARTITIONS = 6;
-
-    public static Properties loadProperties() throws IOException {
-            Properties properties = new Properties();
-        try (FileInputStream fis = new FileInputStream(PROPERTIES_FILE_PATH)) {
-            properties.load(fis);
-            return properties;
+    @JvmStatic
+    @Throws(IOException::class)
+    fun loadProperties(): Properties {
+        val properties = Properties()
+        FileInputStream(PROPERTIES_FILE_PATH).use { fis ->
+            properties.load(fis)
+            return properties
         }
     }
-    public static NewTopic createTopic(final String topicName){
-              return new NewTopic(topicName, PARTITIONS, REPLICATION_FACTOR);
+
+    @JvmStatic
+    fun createTopic(topicName: String?): NewTopic {
+        return NewTopic(topicName, PARTITIONS, REPLICATION_FACTOR)
     }
 }

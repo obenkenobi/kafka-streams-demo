@@ -1,36 +1,33 @@
-package com.example.kafkastreams.instrument;
+package com.example.kafkastreams.instrument
 
-import com.example.kafkastreams.StreamsUtils;
-import org.apache.kafka.clients.admin.Admin;
+import com.example.kafkastreams.StreamsUtils.loadProperties
+import org.apache.kafka.clients.admin.Admin
+import java.io.IOException
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
-public class TopicsDeleter {
-
-    public static void main(String[] args) throws IOException {
-        runDeleter();
+object TopicsDeleter {
+    @Throws(IOException::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        runDeleter()
     }
 
-    public static void runDeleter() throws IOException {
-        Properties properties = StreamsUtils.loadProperties();
-
-        try(Admin adminClient = Admin.create(properties)) {
-
-            final String inputTopicA = properties.getProperty("instrument_a.input.topic");
-            final String inputTopicB = properties.getProperty("instrument_b.input.topic");
-            final String inputTopicC = properties.getProperty("instrument_c.input.topic");
-            final String inputTopicD = properties.getProperty("instrument_d.input.topic");
-            final String inputTopicE = properties.getProperty("instrument_e.input.topic");
-            final String outputTopicA = properties.getProperty("instrument_a.output.topic");
-            final String outputTopicB = properties.getProperty("instrument_b.output.topic");
-            final String outputTopicC = properties.getProperty("instrument_c.output.topic");
-
-            var topics = List.of(inputTopicA, inputTopicB, inputTopicD,
-                    inputTopicC, inputTopicE, outputTopicA, outputTopicB, outputTopicC);
-            adminClient.deleteTopics(topics);
+    @Throws(IOException::class)
+    fun runDeleter() {
+        val properties = loadProperties()
+        Admin.create(properties).use { adminClient ->
+            val inputTopicA = properties.getProperty("instrument_a.input.topic")
+            val inputTopicB = properties.getProperty("instrument_b.input.topic")
+            val inputTopicC = properties.getProperty("instrument_c.input.topic")
+            val inputTopicD = properties.getProperty("instrument_d.input.topic")
+            val inputTopicE = properties.getProperty("instrument_e.input.topic")
+            val outputTopicA = properties.getProperty("instrument_a.output.topic")
+            val outputTopicB = properties.getProperty("instrument_b.output.topic")
+            val outputTopicC = properties.getProperty("instrument_c.output.topic")
+            val topics = listOf(
+                inputTopicA, inputTopicB, inputTopicD,
+                inputTopicC, inputTopicE, outputTopicA, outputTopicB, outputTopicC
+            )
+            adminClient.deleteTopics(topics)
         }
     }
 }
-

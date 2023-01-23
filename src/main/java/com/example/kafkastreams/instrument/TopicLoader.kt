@@ -1,144 +1,124 @@
-package com.example.kafkastreams.instrument;
+package com.example.kafkastreams.instrument
 
-import com.example.kafkastreams.StreamsUtils;
-import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Trace;
-import org.apache.kafka.clients.admin.Admin;
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
+import com.example.kafkastreams.StreamsUtils.createTopic
+import com.example.kafkastreams.StreamsUtils.loadProperties
+import com.newrelic.api.agent.NewRelic
+import com.newrelic.api.agent.Trace
+import org.apache.kafka.clients.admin.Admin
+import org.apache.kafka.clients.producer.*
+import org.apache.kafka.common.serialization.StringSerializer
+import java.io.IOException
+import java.time.Duration
+import java.util.function.Consumer
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Properties;
-
-public class TopicLoader {
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        runProducer();
+object TopicLoader {
+    @Throws(IOException::class, InterruptedException::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        runProducer()
     }
 
-    private static class KVPair<K, V> {
-        private final K key;
-        private final V value;
-
-        public static <T1, T2> KVPair<T1, T2> of(T1 key, T2 value) {
-            return new KVPair<>(key, value);
-        }
-        private KVPair(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public K getKey() {
-            return key;
-        }
-
-        public V getValue() {
-            return value;
-        }
-    }
-
-    public static void runProducer() throws IOException, InterruptedException {
-        Properties properties = StreamsUtils.loadProperties();
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-
-        Callback callback = (metadata, exception) -> {
-            if(exception != null) {
-                System.out.printf("Producing records encountered error %s %n", exception);
+    @Throws(IOException::class, InterruptedException::class)
+    fun runProducer() {
+        val properties = loadProperties()
+        properties[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        properties[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        val callback = Callback { metadata: RecordMetadata, exception: Exception? ->
+            if (exception != null) {
+                System.out.printf("Producing records encountered error %s %n", exception)
             } else {
-                System.out.printf("Record produced | topic - %s offset - %d timestamp - %d %n",
-                        metadata.topic(), metadata.offset(), metadata.timestamp());
+                System.out.printf(
+                    "Record produced | topic - %s offset - %d timestamp - %d %n",
+                    metadata.topic(), metadata.offset(), metadata.timestamp()
+                )
             }
-        };
-
-        try(Admin adminClient = Admin.create(properties);
-            Producer<String, String> producer = new KafkaProducer<>(properties)) {
-
-            final String inputTopicA = properties.getProperty("instrument_a.input.topic");
-            final String inputTopicB = properties.getProperty("instrument_b.input.topic");
-            final String inputTopicC = properties.getProperty("instrument_c.input.topic");
-            final String inputTopicD = properties.getProperty("instrument_d.input.topic");
-            final String inputTopicE = properties.getProperty("instrument_e.input.topic");
-            final String outputTopicA = properties.getProperty("instrument_a.output.topic");
-            final String outputTopicB = properties.getProperty("instrument_b.output.topic");
-            final String outputTopicC = properties.getProperty("instrument_c.output.topic");
-
-            var topics = List.of(StreamsUtils.createTopic(inputTopicA),
-                                                StreamsUtils.createTopic(inputTopicB),
-                                                StreamsUtils.createTopic(inputTopicC),
-                                                StreamsUtils.createTopic(inputTopicD),
-                                                StreamsUtils.createTopic(inputTopicE),
-                                                StreamsUtils.createTopic(outputTopicA),
-                                                StreamsUtils.createTopic(outputTopicB),
-                                                StreamsUtils.createTopic(outputTopicC));
-            adminClient.createTopics(topics);
-
-            List<KVPair<Long, String>> eventsA = List.of(
-                    KVPair.of(1L, "a_1"),
-                    KVPair.of(2L, "a_2"),
-                    KVPair.of(3L, "a_3"),
-                    KVPair.of(4L, "a_4")
-            );
-            List<KVPair<Long, String>> eventsB = List.of(
-                    KVPair.of(1L, "b_1"),
-                    KVPair.of(2L, "b_2"),
-                    KVPair.of(3L, "b_3"),
-                    KVPair.of(4L, "b_4"));
-            List<KVPair<Long, String>> eventsC = List.of(
-                    KVPair.of(1L, "c_1"),
-                    KVPair.of(2L, "c_2"),
-                    KVPair.of(3L, "c_3"),
-                    KVPair.of(4L, "c_4"));
-
-            List<KVPair<Long, String>> eventsD = List.of(
-                    KVPair.of(1L, "d_1"),
-                    KVPair.of(2L, "d_2"),
-                    KVPair.of(3L, "d_3"),
-                    KVPair.of(4L, "d_4"));
-
-            List<KVPair<Long, String>> eventsE = List.of(
-                    KVPair.of(1L, "d_1"),
-                    KVPair.of(2L, "d_2"),
-                    KVPair.of(3L, "d_3"),
-                    KVPair.of(4L, "d_4"));
-
-            eventsA.forEach(pair -> {
-                sendRecord(producer, inputTopicA, pair, callback);
-            });
-            eventsB.forEach(pair -> {
-                sendRecord(producer, inputTopicB, pair, callback);
-            });
-            eventsC.forEach(pair -> {
-                sendRecord(producer, inputTopicC, pair, callback);
-            });
-            eventsD.forEach(pair -> {
-                sendRecord(producer, inputTopicD, pair, callback);
-            });
-            eventsE.forEach(pair -> {
-                sendRecord(producer, inputTopicE, pair, callback);
-            });
         }
-
-        Thread.sleep(Duration.ofMinutes(5).toMillis());
+        Admin.create(properties).use { adminClient ->
+            KafkaProducer<String, String>(properties).use { producer ->
+                val inputTopicA = properties.getProperty("instrument_a.input.topic")
+                val inputTopicB = properties.getProperty("instrument_b.input.topic")
+                val inputTopicC = properties.getProperty("instrument_c.input.topic")
+                val inputTopicD = properties.getProperty("instrument_d.input.topic")
+                val inputTopicE = properties.getProperty("instrument_e.input.topic")
+                val outputTopicA = properties.getProperty("instrument_a.output.topic")
+                val outputTopicB = properties.getProperty("instrument_b.output.topic")
+                val outputTopicC = properties.getProperty("instrument_c.output.topic")
+                val topics = listOf(
+                    createTopic(inputTopicA),
+                    createTopic(inputTopicB),
+                    createTopic(inputTopicC),
+                    createTopic(inputTopicD),
+                    createTopic(inputTopicE),
+                    createTopic(outputTopicA),
+                    createTopic(outputTopicB),
+                    createTopic(outputTopicC)
+                )
+                adminClient.createTopics(topics)
+                val eventsA = listOf(
+                    KVPair.of(1L, "a_1"),
+//                    KVPair.of(2L, "a_2"),
+//                    KVPair.of(3L, "a_3"),
+//                    KVPair.of(4L, "a_4"),
+                )
+                val eventsB = listOf(
+                    KVPair.of(1L, "b_1"),
+//                    KVPair.of(2L, "b_2"),
+//                    KVPair.of(3L, "b_3"),
+//                    KVPair.of(4L, "b_4"),
+                )
+                val eventsC = listOf(
+                    KVPair.of(1L, "c_1"),
+//                    KVPair.of(2L, "c_2"),
+//                    KVPair.of(3L, "c_3"),
+//                    KVPair.of(4L, "c_4"),
+                )
+                val eventsD = listOf(
+                    KVPair.of(1L, "d_1"),
+//                    KVPair.of(2L, "d_2"),
+//                    KVPair.of(3L, "d_3"),
+//                    KVPair.of(4L, "d_4"),
+                )
+                val eventsE = listOf(
+                    KVPair.of(1L, "e_1"),
+//                    KVPair.of(2L, "e_2"),
+//                    KVPair.of(3L, "e_3"),
+//                    KVPair.of(4L, "e_4"),
+                )
+                eventsA.forEach(Consumer { pair: KVPair<Long, String> ->
+                    sendRecord(producer, inputTopicA, pair, callback)
+                })
+                eventsB.forEach(Consumer { pair: KVPair<Long, String> ->
+                    sendRecord(producer, inputTopicB, pair, callback)
+                })
+                eventsC.forEach(Consumer { pair: KVPair<Long, String> ->
+                    sendRecord(producer, inputTopicC, pair, callback)
+                })
+                eventsD.forEach(Consumer { pair: KVPair<Long, String> ->
+                    sendRecord(producer, inputTopicD, pair, callback)
+                })
+                eventsE.forEach(Consumer { pair: KVPair<Long, String> -> sendRecord(producer, inputTopicE, pair, callback) })
+            }
+        }
+//        Thread.sleep(Duration.ofMinutes(5).toMillis())
+    }
+    
+//    @Trace(dispatcher = true)
+    fun sendRecord(
+        producer: Producer<String, String>,
+        topic: String?, recordPair: KVPair<Long, String>,
+        callback: Callback?
+    ) {
+//        NewRelic.setTransactionName("kafkaProducer", String.format("MessageBroker/Kafka/Topic/Produce/Named/%s", topic))
+        val producerRecord = ProducerRecord<String, String>(topic, recordPair.key.toString(), recordPair.value)
+        producer.send(producerRecord, callback)
     }
 
-    @Trace(dispatcher = true)
-    public static void sendRecord(Producer<String, String> producer,
-            String topic, KVPair<Long, String> recordPair, Callback callback) {
-                NewRelic.setTransactionName("kafkaProducer",
-                String.format("MessageBroker/Kafka/Topic/Produce/Named/%s", topic));
+    class KVPair<K, V> private constructor(val key: K, val value: V) {
 
-
-        ProducerRecord<String, String> producerRecord =
-                new ProducerRecord<>(topic, recordPair.getKey().toString(), recordPair.getValue());
-
-        producer.send(producerRecord, callback);
+        companion object {
+            fun <T1, T2> of(key: T1, value: T2): KVPair<T1, T2> {
+                return KVPair(key, value)
+            }
+        }
     }
 }
-

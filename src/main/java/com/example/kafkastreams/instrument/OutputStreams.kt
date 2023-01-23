@@ -1,66 +1,68 @@
-package com.example.kafkastreams.instrument;
+package com.example.kafkastreams.instrument
 
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.common.serialization.Serdes
+import org.apache.kafka.streams.KafkaStreams
+import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.StreamsConfig
+import org.apache.kafka.streams.kstream.Consumed
+import java.io.FileInputStream
+import java.io.IOException
+import java.time.Duration
+import java.util.*
+import java.util.concurrent.CountDownLatch
+import kotlin.system.exitProcess
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
-public class OutputStreams {
-    public static void logRecord(String prompt, String key, String value) {
-        System.out.printf("%s - key %s value %s %n", prompt, key, value);
+object OutputStreams {
+    private fun logRecord(prompt: String?, key: String?, value: String?) {
+        System.out.printf("%s - key %s value %s %n", prompt, key, value)
     }
 
-    public static void main(String[] args) throws IOException {
-        Properties streamsProps = new Properties();
-        try (FileInputStream fis = new FileInputStream("src/main/resources/streams.properties")) {
-            streamsProps.load(fis);
-        }
-        streamsProps.put(StreamsConfig.APPLICATION_ID_CONFIG, "basic-streams");
+    @Throws(IOException::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val streamsProps = Properties()
+        FileInputStream("src/main/resources/streams.properties").use { fis -> streamsProps.load(fis) }
+        streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "basic-streams"
 
-        StreamsBuilder builder = new StreamsBuilder();
+        val builder = StreamsBuilder()
+        val outputTopicA = streamsProps.getProperty("instrument_a.output.topic")
+        val outputTopicB = streamsProps.getProperty("instrument_b.output.topic")
+        val outputTopicC = streamsProps.getProperty("instrument_c.output.topic")
 
-        final String outputTopicA = streamsProps.getProperty("instrument_a.output.topic");
-        final String outputTopicB = streamsProps.getProperty("instrument_b.output.topic");
-        final String outputTopicC = streamsProps.getProperty("instrument_c.output.topic");
-
-        KStream<String, String> outputStream_A = builder.stream(outputTopicA,
-                Consumed.with(Serdes.String(), Serdes.String()));
-        KStream<String, String> outputStream_B = builder.stream(outputTopicB,
-                Consumed.with(Serdes.String(), Serdes.String()));
-        KStream<String, String> outputStream_C = builder.stream(outputTopicC,
-                Consumed.with(Serdes.String(), Serdes.String()));
-
-        outputStream_A
-                .peek((key, value) -> logRecord("Incoming output record [A]", key, value));
-        outputStream_B
-                .peek((key, value) -> logRecord("Incoming output record [B]", key, value));
-        outputStream_C
-                .peek((key, value) -> logRecord("Incoming output record [C]", key, value));
+        val outputStreamA = builder.stream(
+            outputTopicA,
+            Consumed.with(Serdes.String(), Serdes.String())
+        )
+        val outputStreamB = builder.stream(
+            outputTopicB,
+            Consumed.with(Serdes.String(), Serdes.String())
+        )
+        val outputStreamC = builder.stream(
+            outputTopicC,
+            Consumed.with(Serdes.String(), Serdes.String())
+        )
 
 
-        try (KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), streamsProps)) {
-            final CountDownLatch shutdownLatch = new CountDownLatch(1);
+        outputStreamA
+            .peek { key, value -> logRecord("Incoming output record [A]", key, value) }
+        outputStreamB
+            .peek { key, value -> logRecord("Incoming output record [B]", key, value) }
+        outputStreamC
+            .peek { key, value -> logRecord("Incoming output record [C]", key, value) }
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                kafkaStreams.close(Duration.ofSeconds(2));
-                shutdownLatch.countDown();
-            }));
-//            TopicLoader.runProducer();
+        KafkaStreams(builder.build(), streamsProps).use { kafkaStreams ->
+            val shutdownLatch = CountDownLatch(1)
+            Runtime.getRuntime().addShutdownHook(Thread {
+                kafkaStreams.close(Duration.ofSeconds(2))
+                shutdownLatch.countDown()
+            })
             try {
-                kafkaStreams.start();
-                shutdownLatch.await();
-            } catch (Throwable e) {
-                System.exit(1);
+                kafkaStreams.start()
+                shutdownLatch.await()
+            } catch (e: Throwable) {
+                exitProcess(1)
             }
         }
-        System.exit(0);
+        exitProcess(0)
     }
 }

@@ -1,9 +1,11 @@
 buildscript {
+    ext.kotlin_version = '1.8.0'
     repositories {
         mavenCentral()
     }
     dependencies {
         classpath "com.github.jengelman.gradle.plugins:shadow:6.0.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -23,6 +25,7 @@ repositories {
 }
 
 apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'kotlin'
 
 dependencies {
     implementation 'com.newrelic.agent.java:newrelic-api:7.11.1'
@@ -37,11 +40,22 @@ dependencies {
     testImplementation "org.apache.kafka:kafka-streams-test-utils:2.8.0"
     testImplementation "junit:junit:4.13.2"
     testImplementation 'org.hamcrest:hamcrest:2.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 test {
     testLogging {
         outputs.upToDateWhen { false }
         showStandardStreams = true
         exceptionFormat = "full"
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
