@@ -1,0 +1,47 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:6.0.0"
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+group 'io.confluent'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url "https://packages.confluent.io/maven"
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+
+dependencies {
+    implementation 'com.newrelic.agent.java:newrelic-api:7.11.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.2'
+    implementation('org.apache.kafka:kafka-streams:3.3.2') {
+        exclude group: 'org.apache.kafka', module: 'kafka-clients'
+    }
+    implementation('org.apache.kafka:kafka-clients:3.3.2!!')
+
+    testImplementation "org.apache.kafka:kafka-streams-test-utils:2.8.0"
+    testImplementation "junit:junit:4.13.2"
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+}
+test {
+    testLogging {
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+        exceptionFormat = "full"
+    }
+}
