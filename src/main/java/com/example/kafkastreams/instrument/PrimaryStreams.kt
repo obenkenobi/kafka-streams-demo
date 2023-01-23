@@ -72,12 +72,8 @@ object PrimaryStreams {
             .peek { key, value -> logRecord("Processed streamB", key, value) }
 
         val processedKTableC = kTableC
-            .filter { _: String?, value: String ->
-                value.contains("1")
-            }
-            .mapValues { value: String ->
-                value.uppercase(Locale.getDefault())
-            }
+            .filter { _, value -> value.contains("1") }
+            .mapValues { value -> value.uppercase(Locale.getDefault()) }
 
         val joinStreamAB = processedStreamA.join(
             processedStreamB,
