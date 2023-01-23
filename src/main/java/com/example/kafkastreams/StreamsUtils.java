@@ -1,4 +1,4 @@
-package io.confluent.developer;
+package com.example.kafkastreams;
 
 import org.apache.kafka.clients.admin.NewTopic;
 
