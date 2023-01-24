@@ -99,16 +99,16 @@ object TopicLoader {
                 eventsE.forEach(Consumer { pair: KVPair<Long, String> -> sendRecord(producer, inputTopicE, pair, callback) })
             }
         }
-//        Thread.sleep(Duration.ofMinutes(5).toMillis())
+        Thread.sleep(Duration.ofMinutes(5).toMillis())
     }
     
-//    @Trace(dispatcher = true)
+    @Trace(dispatcher = true)
     fun sendRecord(
         producer: Producer<String, String>,
         topic: String?, recordPair: KVPair<Long, String>,
         callback: Callback?
     ) {
-//        NewRelic.setTransactionName("kafkaProducer", String.format("MessageBroker/Kafka/Topic/Produce/Named/%s", topic))
+        NewRelic.setTransactionName("kafkaProducer", String.format("MessageBroker/Kafka/Topic/Produce/Named/%s", topic))
         val producerRecord = ProducerRecord<String, String>(topic, recordPair.key.toString(), recordPair.value)
         producer.send(producerRecord, callback)
     }
