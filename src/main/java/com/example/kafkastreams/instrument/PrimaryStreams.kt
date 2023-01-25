@@ -1,5 +1,6 @@
 package com.example.kafkastreams.instrument
 
+import com.newrelic.api.agent.NewRelic
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
@@ -15,7 +16,8 @@ import kotlin.system.exitProcess
 
 object PrimaryStreams {
     private fun logRecord(prompt: String?, key: String?, value: String?) {
-        System.out.printf("%s - key %s value %s\n", prompt, key, value)
+        System.out.printf("%s - key %s value %s | transaction: %s\n", prompt, key, value,
+            NewRelic.getAgent()?.transaction?.toString())
     }
 
     @Throws(IOException::class)

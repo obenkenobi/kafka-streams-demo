@@ -343,6 +343,10 @@ common: &default_settings
     com.newrelic.instrumentation.jdbc-resultset:
       enabled: false
 
+    # make sure spans instrumentation is added
+    com.newrelic.instrumentation.kafka-clients-spans-0.11.0.0:
+      enabled: true
+
     # Classes loaded by classloaders in this list will not be instrumented.
     # This is a useful optimization for runtimes which use classloaders to
     # load dynamic classes which the agent would not instrument.
