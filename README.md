@@ -1,6 +1,6 @@
 # Kafka Streams Demo
 
-This code is based on the [Kafka Streams 101 course](https://developer.confluent.io/learn-kafka/kafka-streams/get-started/).
+This demo is based on the [Kafka Streams 101 course](https://developer.confluent.io/learn-kafka/kafka-streams/get-started/).
 
 ##  Confluent Cloud
  
