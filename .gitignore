@@ -3,8 +3,13 @@
 .gradle/
 out/
 build/
-newrelic/newrelic.jar
 
 streams.properties
 ccloud.properties
 *.log
+
+# Exclude new relic agent jars
+newrelic*.jar
+
+# Exclude open telemetry agent jars
+opentelemetry-javaagent.jar

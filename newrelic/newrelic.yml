@@ -291,8 +291,6 @@ common: &default_settings
     # Default is true.
     enabled: true
 
-    collect_span_events: true
-
     # Determines the number of Span events that can be captured during an agent harvest cycle.
     # Increasing the number of Span events can lead to additional agent overhead. A maximum value may be imposed server side by New Relic.
     # Default is 2000
