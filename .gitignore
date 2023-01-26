@@ -3,6 +3,7 @@
 .gradle/
 out/
 build/
+newrelic/newrelic.jar
 
 streams.properties
 ccloud.properties

@@ -99,7 +99,6 @@ object TopicLoader {
                 eventsE.forEach(Consumer { pair: KVPair<Long, String> -> sendRecord(producer, inputTopicE, pair, callback) })
             }
         }
-        Thread.sleep(Duration.ofMinutes(5).toMillis())
     }
     
     @Trace(dispatcher = true)

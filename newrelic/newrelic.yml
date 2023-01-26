@@ -20,6 +20,10 @@ common: &default_settings
   # Default is true.
   agent_enabled: true
 
+  sync_startup: true
+  send_data_on_exit: true
+  end_data_on_exit_threshold: 0
+
   # Set the name of your application as you'd like it to show up in the New Relic UI.
   # If enable_auto_app_naming is false, the agent reports all data to this application.
   # Otherwise, the agent reports only background tasks (transactions for non-web applications)
@@ -286,6 +290,8 @@ common: &default_settings
     # Set to false to disable Span events.
     # Default is true.
     enabled: true
+
+    collect_span_events: true
 
     # Determines the number of Span events that can be captured during an agent harvest cycle.
     # Increasing the number of Span events can lead to additional agent overhead. A maximum value may be imposed server side by New Relic.

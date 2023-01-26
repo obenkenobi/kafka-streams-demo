@@ -103,7 +103,7 @@ object PrimaryStreams {
             .mapValues { value -> value.uppercase(Locale.getDefault()) }
             .toStream()
             .peek { key, value ->
-                logRecord("Outgoing kTable D record to topic B", key, value)
+                logRecord("Outgoing topic B from kTable D", key, value)
             }
             .to(outputTopicB, Produced.with(Serdes.String(), Serdes.String()))
 
