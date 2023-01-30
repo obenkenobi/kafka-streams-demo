@@ -13,3 +13,5 @@ newrelic*.jar
 
 # Exclude open telemetry agent jars
 opentelemetry-javaagent.jar
+
+.DS_STORE
