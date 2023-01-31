@@ -22,7 +22,7 @@ object OutputStreams {
     fun main(args: Array<String>) {
         val streamsProps = Properties()
         FileInputStream("src/main/resources/streams.properties").use { fis -> streamsProps.load(fis) }
-        streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "basic-streams"
+        streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "output-streams"
 
         val builder = StreamsBuilder()
         val outputTopicA = streamsProps.getProperty("instrument_a.output.topic")

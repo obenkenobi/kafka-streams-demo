@@ -28,7 +28,7 @@ object PrimaryStreams {
             streamsProps.load(fis)
         }
 
-        streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "basic-streams"
+        streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "primary-streams"
 
         val builder = StreamsBuilder()
 
