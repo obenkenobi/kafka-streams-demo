@@ -11,6 +11,7 @@ import java.io.IOException
 
 fun main() {
     runProducer()
+    Thread.sleep(60000)
 }
 
 @Trace(dispatcher = true)
@@ -74,7 +75,6 @@ fun runProducer() {
                 sendRecord(producer, inputTopicE, pair, callback) }
         }
     }
-    Thread.sleep(60000)
 }
 
 
