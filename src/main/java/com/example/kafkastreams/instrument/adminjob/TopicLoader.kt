@@ -8,8 +8,6 @@ import org.apache.kafka.clients.admin.Admin
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.serialization.StringSerializer
 import java.io.IOException
-import java.util.function.Consumer
-import java.util.stream.IntStream
 
 fun main() {
     runProducer()
@@ -52,13 +50,13 @@ fun runProducer() {
                 createTopic(outputTopicB),
                 createTopic(outputTopicC)
             )
-            val numRecordsPerTopic = 100000L
+            val recordsPerTopic = 1000000L
             adminClient.createTopics(topics)
-            val eventsA = (1L..numRecordsPerTopic).map { KVPair(it, "a_$it") }
-            val eventsB = (1L..numRecordsPerTopic).map { KVPair(it, "b_$it") }
-            val eventsC = (1L..numRecordsPerTopic).map { KVPair(it, "c_$it") }
-            val eventsD = (1L..numRecordsPerTopic).map { KVPair(it, "d_$it") }
-            val eventsE = (1L..numRecordsPerTopic).map { KVPair(it, "e_$it") }
+            val eventsA = (1L..recordsPerTopic).map { KVPair(it, "a_$it") }
+            val eventsB = (1L..recordsPerTopic).map { KVPair(it, "b_$it") }
+            val eventsC = (1L..recordsPerTopic).map { KVPair(it, "c_$it") }
+            val eventsD = (1L..recordsPerTopic).map { KVPair(it, "d_$it") }
+            val eventsE = (1L..recordsPerTopic).map { KVPair(it, "e_$it") }
 
             eventsA.parallelStream().forEach { pair: KVPair<Long, String> ->
                 sendRecord(producer, inputTopicA, pair, callback)
