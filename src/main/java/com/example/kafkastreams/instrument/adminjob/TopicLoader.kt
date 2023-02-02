@@ -15,8 +15,10 @@ fun main() {
     runProducer()
 }
 
+@Trace(dispatcher = true)
 @Throws(IOException::class, InterruptedException::class)
 fun runProducer() {
+    NewRelic.setTransactionName("kafkaProducer", "MessageBroker/Kafka/Topic/Produce")
     val properties = loadProperties()
     properties[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
     properties[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
@@ -78,13 +80,12 @@ fun runProducer() {
     Thread.sleep(60000)
 }
 
-@Trace(dispatcher = true)
+
 fun sendRecord(
     producer: Producer<String, String>,
     topic: String?, recordPair: KVPair<Long, String>,
     callback: Callback?
 ) {
-    NewRelic.setTransactionName("kafkaProducer", String.format("MessageBroker/Kafka/Topic/Produce/Named/%s", topic))
     println("Sending | topic: $topic - key: ${recordPair.key}")
     val producerRecord = ProducerRecord(topic, recordPair.key.toString(), recordPair.value)
     producer.send(producerRecord, callback)
