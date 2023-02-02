@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.serialization.StringSerializer
 import java.io.IOException
 import java.util.function.Consumer
+import java.util.stream.IntStream
 
 fun main() {
     runProducer()
@@ -49,50 +50,29 @@ fun runProducer() {
                 createTopic(outputTopicB),
                 createTopic(outputTopicC)
             )
+            val numRecordsPerTopic = 100000L
             adminClient.createTopics(topics)
-            val eventsA = listOf(
-                KVPair(1L, "a_1"),
-//                    KVPair(2L, "a_2"),
-//                    KVPair(3L, "a_3"),
-//                    KVPair(4L, "a_4"),
-            )
-            val eventsB = listOf(
-                KVPair(1L, "b_1"),
-//                    KVPair(2L, "b_2"),
-//                    KVPair(3L, "b_3"),
-//                    KVPair(4L, "b_4"),
-            )
-            val eventsC = listOf(
-                KVPair(1L, "c_1"),
-//                    KVPair(2L, "c_2"),
-//                    KVPair(3L, "c_3"),
-//                    KVPair(4L, "c_4"),
-            )
-            val eventsD = listOf(
-                KVPair(1L, "d_1"),
-//                    KVPair(2L, "d_2"),
-//                    KVPair(3L, "d_3"),
-//                    KVPair(4L, "d_4"),
-            )
-            val eventsE = listOf(
-                KVPair(1L, "e_1"),
-//                    KVPair(2L, "e_2"),
-//                    KVPair(3L, "e_3"),
-//                    KVPair(4L, "e_4"),
-            )
-            eventsA.forEach(Consumer { pair: KVPair<Long, String> ->
+            val eventsA = (1L..numRecordsPerTopic).map { KVPair(it, "a_${it}")}
+
+            val eventsB = (1L..numRecordsPerTopic).map { KVPair(it, "b_${it}")}
+            val eventsC = (1L..numRecordsPerTopic).map { KVPair(it, "c_${it}")}
+            val eventsD = (1L..numRecordsPerTopic).map { KVPair(it, "d_${it}")}
+            val eventsE = (1L..numRecordsPerTopic).map { KVPair(it, "e_${it}")}
+
+            eventsA.parallelStream().forEach { pair: KVPair<Long, String> ->
                 sendRecord(producer, inputTopicA, pair, callback)
-            })
-            eventsB.forEach(Consumer { pair: KVPair<Long, String> ->
+            }
+            eventsB.parallelStream().forEach { pair: KVPair<Long, String> ->
                 sendRecord(producer, inputTopicB, pair, callback)
-            })
-            eventsC.forEach(Consumer { pair: KVPair<Long, String> ->
+            }
+            eventsC.parallelStream().forEach { pair: KVPair<Long, String> ->
                 sendRecord(producer, inputTopicC, pair, callback)
-            })
-            eventsD.forEach(Consumer { pair: KVPair<Long, String> ->
+            }
+            eventsD.parallelStream().forEach { pair: KVPair<Long, String> ->
                 sendRecord(producer, inputTopicD, pair, callback)
-            })
-            eventsE.forEach(Consumer { pair: KVPair<Long, String> -> sendRecord(producer, inputTopicE, pair, callback) })
+            }
+            eventsE.parallelStream().forEach { pair: KVPair<Long, String> ->
+                sendRecord(producer, inputTopicE, pair, callback) }
         }
     }
     Thread.sleep(60000)
@@ -105,7 +85,8 @@ fun sendRecord(
     callback: Callback?
 ) {
     NewRelic.setTransactionName("kafkaProducer", String.format("MessageBroker/Kafka/Topic/Produce/Named/%s", topic))
-    val producerRecord = ProducerRecord<String, String>(topic, recordPair.key.toString(), recordPair.value)
+    println("Sending | topic: $topic - key: ${recordPair.key}")
+    val producerRecord = ProducerRecord(topic, recordPair.key.toString(), recordPair.value)
     producer.send(producerRecord, callback)
 }
 
