@@ -15,8 +15,8 @@ import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
 
 private fun logRecord(prompt: String?, key: String?, value: String?) {
-    System.out.printf("%s - key %s value %s | transaction: %s\n", prompt, key, value,
-        NewRelic.getAgent()?.transaction?.toString())
+    System.out.printf("txn: %s | %s - key: %s - value: %s\n",
+        NewRelic.getAgent()?.transaction?.toString(), prompt, key, value)
 }
 
 @Throws(IOException::class)
