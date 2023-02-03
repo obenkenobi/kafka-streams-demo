@@ -1,5 +1,6 @@
 package com.example.kafkastreams.instrument.streamjob
 
+import com.newrelic.api.agent.NewRelic
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
@@ -13,7 +14,8 @@ import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
 
 private fun logRecord(prompt: String?, key: String?, value: String?) {
-    System.out.printf("%s - key %s value %s %n", prompt, key, value)
+    System.out.printf("txn: %s | %s - key: %s - value: %s\n",
+        NewRelic.getAgent()?.transaction?.toString(), prompt, key, value)
 }
 
 @Throws(IOException::class)
