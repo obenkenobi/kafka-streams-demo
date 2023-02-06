@@ -11,7 +11,6 @@ import java.io.IOException
 
 fun main() {
     runProducer()
-    Thread.sleep(60000)
 }
 
 @Trace(dispatcher = true)
@@ -53,40 +52,26 @@ fun runProducer() {
             )
             val recordsPerTopic = 1000000L
             adminClient.createTopics(topics)
-            val eventsA = (1L..recordsPerTopic).map { KVPair(it, "a_$it") }
-            val eventsB = (1L..recordsPerTopic).map { KVPair(it, "b_$it") }
-            val eventsC = (1L..recordsPerTopic).map { KVPair(it, "c_$it") }
-            val eventsD = (1L..recordsPerTopic).map { KVPair(it, "d_$it") }
-            val eventsE = (1L..recordsPerTopic).map { KVPair(it, "e_$it") }
-
-            eventsA.parallelStream().forEach { pair: KVPair<Long, String> ->
-                sendRecord(producer, inputTopicA, pair, callback)
-            }
-            eventsB.parallelStream().forEach { pair: KVPair<Long, String> ->
-                sendRecord(producer, inputTopicB, pair, callback)
-            }
-            eventsC.parallelStream().forEach { pair: KVPair<Long, String> ->
-                sendRecord(producer, inputTopicC, pair, callback)
-            }
-            eventsD.parallelStream().forEach { pair: KVPair<Long, String> ->
-                sendRecord(producer, inputTopicD, pair, callback)
-            }
-            eventsE.parallelStream().forEach { pair: KVPair<Long, String> ->
-                sendRecord(producer, inputTopicE, pair, callback) }
+            val eventsA = (1L..recordsPerTopic).map { KVPair(it, "a_$it", inputTopicA) }
+            val eventsB = (1L..recordsPerTopic).map { KVPair(it, "b_$it", inputTopicB) }
+            val eventsC = (1L..recordsPerTopic).map { KVPair(it, "c_$it", inputTopicC) }
+            val eventsD = (1L..recordsPerTopic).map { KVPair(it, "d_$it", inputTopicD) }
+            val eventsE = (1L..recordsPerTopic).map { KVPair(it, "e_$it", inputTopicC) }
+            listOf(eventsA, eventsB, eventsC, eventsD, eventsE)
+                .stream()
+                .flatMap { it.stream() }
+                .parallel()
+                .forEach { sendRecord(producer, it, callback) }
         }
     }
 }
 
 
-fun sendRecord(
-    producer: Producer<String, String>,
-    topic: String?, recordPair: KVPair<Long, String>,
-    callback: Callback?
-) {
-    println("Sending | topic: $topic - key: ${recordPair.key}")
-    val producerRecord = ProducerRecord(topic, recordPair.key.toString(), recordPair.value)
+fun sendRecord(producer: Producer<String, String>, pair: KVPair<Long, String>, callback: Callback?) {
+    println("Sending | topic: ${pair.topic} - key: ${pair.key}")
+    val producerRecord = ProducerRecord(pair.topic, pair.key.toString(), pair.value)
     producer.send(producerRecord, callback)
 }
 
-class KVPair<K, V> constructor(val key: K, val value: V) {
+class KVPair<K, V> constructor(val key: K, val value: V, val topic: String) {
 }

@@ -79,7 +79,7 @@ fun main() {
         processedStreamB,
         { a, b -> a + b },
         JoinWindows.ofTimeDifferenceAndGrace(
-            Duration.ofMinutes(30),
+            Duration.ofHours(1),
             Duration.ofMinutes(30)
         ),
         StreamJoined.with(Serdes.String(), Serdes.String(), Serdes.String())
