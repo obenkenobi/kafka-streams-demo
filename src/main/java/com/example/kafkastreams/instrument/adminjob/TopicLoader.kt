@@ -8,6 +8,7 @@ import org.apache.kafka.clients.admin.Admin
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.serialization.StringSerializer
 import java.io.IOException
+import java.util.stream.Stream
 
 fun main() {
     runProducer()
@@ -52,16 +53,16 @@ fun runProducer() {
             )
             val recordsPerTopic = 1000000L
             adminClient.createTopics(topics)
-            val eventsA = (1L..recordsPerTopic).map { KVPair(it, "a_$it", inputTopicA) }
-            val eventsB = (1L..recordsPerTopic).map { KVPair(it, "b_$it", inputTopicB) }
-            val eventsC = (1L..recordsPerTopic).map { KVPair(it, "c_$it", inputTopicC) }
-            val eventsD = (1L..recordsPerTopic).map { KVPair(it, "d_$it", inputTopicD) }
-            val eventsE = (1L..recordsPerTopic).map { KVPair(it, "e_$it", inputTopicE) }
-            listOf(eventsA, eventsB, eventsC, eventsD, eventsE)
-                .stream()
-                .flatMap { it.stream() }
-                .parallel()
-                .forEach { sendRecord(producer, it, callback) }
+            (1L..recordsPerTopic).flatMap {
+                listOf(
+                    KVPair(it, "a_$it", inputTopicA),
+                    KVPair(it, "b_$it", inputTopicB),
+                    KVPair(it, "c_$it", inputTopicC),
+                    KVPair(it, "d_$it", inputTopicD),
+                    KVPair(it, "e_$it", inputTopicE))
+            }.parallelStream().forEach {
+                sendRecord(producer, it, callback)
+            }
         }
     }
 }
