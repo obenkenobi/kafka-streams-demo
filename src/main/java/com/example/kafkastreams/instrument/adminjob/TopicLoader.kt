@@ -56,7 +56,7 @@ fun runProducer() {
             val eventsB = (1L..recordsPerTopic).map { KVPair(it, "b_$it", inputTopicB) }
             val eventsC = (1L..recordsPerTopic).map { KVPair(it, "c_$it", inputTopicC) }
             val eventsD = (1L..recordsPerTopic).map { KVPair(it, "d_$it", inputTopicD) }
-            val eventsE = (1L..recordsPerTopic).map { KVPair(it, "e_$it", inputTopicC) }
+            val eventsE = (1L..recordsPerTopic).map { KVPair(it, "e_$it", inputTopicE) }
             listOf(eventsA, eventsB, eventsC, eventsD, eventsE)
                 .stream()
                 .flatMap { it.stream() }
