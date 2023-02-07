@@ -41,6 +41,7 @@ fun runProducer() {
             val outputTopicA = properties.getProperty("instrument_a.output.topic")
             val outputTopicB = properties.getProperty("instrument_b.output.topic")
             val outputTopicC = properties.getProperty("instrument_c.output.topic")
+
             val topics = listOf(
                 createTopic(inputTopicA),
                 createTopic(inputTopicB),
@@ -51,8 +52,9 @@ fun runProducer() {
                 createTopic(outputTopicB),
                 createTopic(outputTopicC)
             )
-            val recordsPerTopic = 1000000L
             adminClient.createTopics(topics)
+
+            val recordsPerTopic = 1000000L
             (1L..recordsPerTopic).flatMap {
                 listOf(
                     KVPair(it, "a_$it", inputTopicA),
