@@ -57,11 +57,11 @@ fun runProducer() {
             val recordsPerTopic = 1000000L
             (1L..recordsPerTopic).flatMap {
                 listOf(
-                    KVPair(it, "a_$it", inputTopicA),
-                    KVPair(it, "b_$it", inputTopicB),
-                    KVPair(it, "c_$it", inputTopicC),
-                    KVPair(it, "d_$it", inputTopicD),
-                    KVPair(it, "e_$it", inputTopicE))
+                    KVPair(it, "a_${it}_${System.currentTimeMillis()}", inputTopicA),
+                    KVPair(it, "b_${it}_${System.currentTimeMillis()}", inputTopicB),
+                    KVPair(it, "c_${it}_${System.currentTimeMillis()}", inputTopicC),
+                    KVPair(it, "d_${it}_${System.currentTimeMillis()}", inputTopicD),
+                    KVPair(it, "e_${it}_${System.currentTimeMillis()}", inputTopicE))
             }.parallelStream().forEach {
                 sendRecord(producer, it, callback)
             }
