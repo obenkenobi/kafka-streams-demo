@@ -52,7 +52,13 @@ fun runProducer() {
                 createTopic(outputTopicB),
                 createTopic(outputTopicC)
             )
-            adminClient.createTopics(topics)
+            adminClient.createTopics(topics).values().entries.parallelStream().forEach {
+                try {
+                    it.value.get()
+                } catch (e: Throwable) {
+                    println(e.message)
+                }
+            }
 
             val recordsPerTopic = 1000000L
             (1L..recordsPerTopic).flatMap {

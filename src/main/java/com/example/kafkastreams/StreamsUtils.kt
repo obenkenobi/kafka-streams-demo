@@ -6,8 +6,8 @@ import java.io.IOException
 import java.util.*
 
 private const val PROPERTIES_FILE_PATH = "src/main/resources/streams.properties"
-private const val REPLICATION_FACTOR: Short = 3
-private const val PARTITIONS = 6
+private const val REPLICATION_FACTOR: Short = 1
+private const val PARTITIONS = 150
 
 @Throws(IOException::class)
 fun loadProperties(): Properties {
