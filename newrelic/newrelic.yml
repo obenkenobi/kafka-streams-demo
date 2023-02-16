@@ -386,6 +386,12 @@ common: &default_settings
 
     # An example label
     #label_name: label_value
+  kafka:
+    metrics:
+      debug:
+        enabled: true
+      as_events:
+        enabled: false
 
 
 # Application Environments
