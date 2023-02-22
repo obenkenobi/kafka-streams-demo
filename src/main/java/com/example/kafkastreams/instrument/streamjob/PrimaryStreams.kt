@@ -27,6 +27,7 @@ fun main() {
     }
 
     streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "primary-streams"
+    streamsProps[StreamsConfig.CLIENT_ID_CONFIG] = "custom-client-id"
 
     val builder = StreamsBuilder()
 
