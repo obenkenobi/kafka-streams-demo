@@ -1,5 +1,8 @@
 package com.example.kafkastreams.instrument.streamjob
 
+import com.example.kafkastreams.constants.topics.outputTopicA
+import com.example.kafkastreams.constants.topics.outputTopicB
+import com.example.kafkastreams.constants.topics.outputTopicC
 import com.newrelic.api.agent.NewRelic
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
@@ -25,9 +28,6 @@ fun main() {
     streamsProps[StreamsConfig.APPLICATION_ID_CONFIG] = "output-streams"
 
     val builder = StreamsBuilder()
-    val outputTopicA = streamsProps.getProperty("instrument_a.output.topic")
-    val outputTopicB = streamsProps.getProperty("instrument_b.output.topic")
-    val outputTopicC = streamsProps.getProperty("instrument_c.output.topic")
 
     val outputStreamA = builder.stream(
         outputTopicA,

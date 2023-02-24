@@ -1,5 +1,6 @@
 package com.example.kafkastreams.instrument.adminjob
 
+import com.example.kafkastreams.constants.topics.*
 import com.example.kafkastreams.loadProperties
 import com.example.kafkastreams.createTopic
 import com.newrelic.api.agent.NewRelic
@@ -33,14 +34,6 @@ fun runProducer() {
     }
     Admin.create(properties).use { adminClient ->
         KafkaProducer<String, String>(properties).use { producer ->
-            val inputTopicA = properties.getProperty("instrument_a.input.topic")
-            val inputTopicB = properties.getProperty("instrument_b.input.topic")
-            val inputTopicC = properties.getProperty("instrument_c.input.topic")
-            val inputTopicD = properties.getProperty("instrument_d.input.topic")
-            val inputTopicE = properties.getProperty("instrument_e.input.topic")
-            val outputTopicA = properties.getProperty("instrument_a.output.topic")
-            val outputTopicB = properties.getProperty("instrument_b.output.topic")
-            val outputTopicC = properties.getProperty("instrument_c.output.topic")
 
             val topics = listOf(
                 createTopic(inputTopicA),

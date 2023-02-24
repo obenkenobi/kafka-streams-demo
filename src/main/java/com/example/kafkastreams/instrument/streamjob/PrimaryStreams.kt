@@ -1,5 +1,6 @@
 package com.example.kafkastreams.instrument.streamjob
 
+import com.example.kafkastreams.constants.topics.*
 import com.newrelic.api.agent.NewRelic
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.KafkaStreams
@@ -30,15 +31,6 @@ fun main() {
     streamsProps[StreamsConfig.CLIENT_ID_CONFIG] = "custom-client-id"
 
     val builder = StreamsBuilder()
-
-    val inputTopicA = streamsProps.getProperty("instrument_a.input.topic")
-    val inputTopicB = streamsProps.getProperty("instrument_b.input.topic")
-    val inputTopicC = streamsProps.getProperty("instrument_c.input.topic")
-    val inputTopicD = streamsProps.getProperty("instrument_d.input.topic")
-    val inputTopicE = streamsProps.getProperty("instrument_e.input.topic")
-    val outputTopicA = streamsProps.getProperty("instrument_a.output.topic")
-    val outputTopicB = streamsProps.getProperty("instrument_b.output.topic")
-    val outputTopicC = streamsProps.getProperty("instrument_c.output.topic")
 
     val streamA = builder.stream(inputTopicA, Consumed.with(Serdes.String(), Serdes.String()))
     val streamB = builder.stream(inputTopicB, Consumed.with(Serdes.String(), Serdes.String()))
