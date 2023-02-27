@@ -348,10 +348,12 @@ common: &default_settings
       enabled: false
 
     # removing spans to work with new streams instrumentation
-#    com.newrelic.instrumentation.kafka-clients-spans-0.11.0.0:
-#      enabled: true
+    com.newrelic.instrumentation.kafka-clients-spans-2.0.0:
+      enabled: true
+    com.newrelic.instrumentation.kafka-clients-spans-2.1.0:
+      enabled: true
     com.newrelic.instrumentation.kafka-streams-spans-2.6.0:
-      enabled: false
+      enabled: true
     com.newrelic.instrumentation.kafka-streams-spans-3.2.0:
       enabled: true
     com.newrelic.instrumentation.kafka-streams-metrics-1.0.0:
