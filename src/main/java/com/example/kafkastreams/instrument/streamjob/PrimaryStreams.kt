@@ -32,6 +32,26 @@ fun main() {
 
     val builder = StreamsBuilder()
 
+//    simpleStreams(builder)
+    complexStreams(builder)
+
+    KafkaStreams(builder.build(), streamsProps).use { kafkaStreams ->
+        val shutdownLatch = CountDownLatch(1)
+        Runtime.getRuntime().addShutdownHook(Thread {
+            kafkaStreams.close(Duration.ofSeconds(2))
+            shutdownLatch.countDown()
+        })
+        try {
+            kafkaStreams.start()
+            shutdownLatch.await()
+        } catch (e: Throwable) {
+            exitProcess(1)
+        }
+    }
+    exitProcess(0)
+}
+
+fun complexStreams(builder:  StreamsBuilder) {
     val streamA = builder.stream(inputTopicA, Consumed.with(Serdes.String(), Serdes.String()))
     val streamB = builder.stream(inputTopicB, Consumed.with(Serdes.String(), Serdes.String()))
     val streamE = builder.stream(inputTopicE, Consumed.with(Serdes.String(), Serdes.String()))
@@ -115,19 +135,21 @@ fun main() {
             logRecord("Outgoing topic C stream_E record", key, value)
         }
         .to(outputTopicC, Produced.with(Serdes.String(), Serdes.String()))
+}
 
-    KafkaStreams(builder.build(), streamsProps).use { kafkaStreams ->
-        val shutdownLatch = CountDownLatch(1)
-        Runtime.getRuntime().addShutdownHook(Thread {
-            kafkaStreams.close(Duration.ofSeconds(2))
-            shutdownLatch.countDown()
-        })
-        try {
-            kafkaStreams.start()
-            shutdownLatch.await()
-        } catch (e: Throwable) {
-            exitProcess(1)
-        }
-    }
-    exitProcess(0)
+fun simpleStreams(builder:  StreamsBuilder) {
+    val streamA = builder.stream(inputTopicA, Consumed.with(Serdes.String(), Serdes.String()))
+    val streamB = builder.stream(inputTopicB, Consumed.with(Serdes.String(), Serdes.String()))
+    streamA
+        .peek { key, value -> logRecord("Incoming streamA", key, value) }
+        .filter { _, value -> value.contains("1") }
+        .mapValues { value -> value.uppercase(Locale.getDefault()) }
+        .peek { key, value -> logRecord("Processed streamA", key, value) }
+        .to(outputTopicA, Produced.with(Serdes.String(), Serdes.String()))
+    streamB
+        .peek { key, value -> logRecord("Incoming streamB", key, value) }
+        .filter { _, value -> value.contains("1") }
+        .mapValues { value -> value.uppercase(Locale.getDefault()) }
+        .peek { key, value -> logRecord("Processed streamB", key, value) }
+        .to(outputTopicB, Produced.with(Serdes.String(), Serdes.String()))
 }
