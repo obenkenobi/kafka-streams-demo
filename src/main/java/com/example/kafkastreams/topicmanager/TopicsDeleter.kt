@@ -1,4 +1,4 @@
-package com.example.kafkastreams.instrument.adminjob
+package com.example.kafkastreams.topicmanager
 
 import com.example.kafkastreams.loadProperties
 import org.apache.kafka.clients.admin.Admin

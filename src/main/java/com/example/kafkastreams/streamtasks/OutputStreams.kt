@@ -1,4 +1,4 @@
-package com.example.kafkastreams.instrument.streamjob
+package com.example.kafkastreams.streamtasks
 
 import com.example.kafkastreams.constants.topics.outputTopicA
 import com.example.kafkastreams.constants.topics.outputTopicB

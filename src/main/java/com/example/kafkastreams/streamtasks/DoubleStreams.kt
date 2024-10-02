@@ -1,4 +1,4 @@
-package com.example.kafkastreams.instrument.streamjob
+package com.example.kafkastreams.streamtasks
 
 import com.example.kafkastreams.constants.topics.*
 import com.newrelic.api.agent.NewRelic
@@ -7,7 +7,6 @@ import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.*
-import org.apache.kafka.streams.state.Stores
 import java.io.FileInputStream
 import java.io.IOException
 import java.time.Duration

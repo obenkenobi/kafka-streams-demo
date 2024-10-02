@@ -1,4 +1,4 @@
-package com.example.kafkastreams.instrument.adminjob
+package com.example.kafkastreams.topicmanager
 
 import com.example.kafkastreams.constants.topics.*
 import com.example.kafkastreams.loadProperties
@@ -9,7 +9,6 @@ import org.apache.kafka.clients.admin.Admin
 import org.apache.kafka.clients.producer.*
 import org.apache.kafka.common.serialization.StringSerializer
 import java.io.IOException
-import java.util.stream.Stream
 
 fun main() {
     runProducer()
